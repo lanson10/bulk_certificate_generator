@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic[email]
+reportlab
+python-multipart
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+httpx

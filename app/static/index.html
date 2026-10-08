@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Certificate Generator — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Background Glow Accents -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <div class="app-container">
+    <!-- Header / Navbar -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">CertiCraft</h1>
+          <p class="brand-subtitle">Bulk Certificate Generator & Dispatch Engine</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span>FastAPI Engine Online</span>
+        </div>
+        <a href="/docs" target="_blank" class="nav-btn" id="docs-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          API Docs
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="dashboard-grid">
+      <!-- LEFT: Generator Panel -->
+      <section class="card generator-card">
+        <div class="card-header">
+          <div class="card-header-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">Create Certificate Batch</h2>
+            <p class="card-desc">Enter event information and upload or paste recipient details</p>
+          </div>
+        </div>
+
+        <form id="generate-form" onsubmit="event.preventDefault();">
+          <!-- Course Metadata -->
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="course-name">Course or Event Name <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="course-name" 
+                placeholder="e.g. Advanced Python & Cloud Architecture" 
+                required 
+                maxlength="200"
+                value="Full-Stack Web & Cloud Masterclass"
+              />
+            </div>
+            <div class="form-group flex-1">
+              <label for="issue-date">Issue Date <span class="required">*</span></label>
+              <input 
+                type="date" 
+                id="issue-date" 
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Input Source Tabs -->
+          <div class="source-tabs">
+            <button type="button" class="tab-btn active" id="tab-csv" onclick="switchTab('csv')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              Upload CSV File
+            </button>
+            <button type="button" class="tab-btn" id="tab-manual" onclick="switchTab('manual')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              Manual / Paste Entry
+            </button>
+          </div>
+
+          <!-- TAB 1: CSV Upload -->
+          <div id="panel-csv" class="tab-panel active">
+            <div class="dropzone" id="csv-dropzone">
+              <input type="file" id="csv-file-input" accept=".csv" style="display:none;" />
+              <div class="dropzone-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <polyline points="9 15 12 12 15 15"></polyline>
+                </svg>
+              </div>
+              <p class="dropzone-title">Click to upload or drag & drop CSV here</p>
+              <p class="dropzone-sub">Headers expected: <code>name</code> and <code>email</code></p>
+              <div class="dropzone-actions">
+                <button type="button" class="btn-subtle" id="download-template-btn" onclick="downloadSampleCsv()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Download Sample CSV
+                </button>
+                <button type="button" class="btn-subtle" id="load-sample-csv-btn" onclick="loadSampleCsvData()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  Load Demo Data (3 Recipients)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Manual / Paste -->
+          <div id="panel-manual" class="tab-panel">
+            <div class="form-group">
+              <div class="field-header">
+                <label for="manual-text">Paste CSV or List (One recipient per line)</label>
+                <button type="button" class="link-btn" onclick="loadSampleManualData()">Fill Sample</button>
+              </div>
+              <textarea 
+                id="manual-text" 
+                rows="6" 
+                placeholder="Lanson Bardeskar, lanson.bardeskar@example.com&#10;Saurav Swami, saurav.swami@example.com&#10;Kanif Kumbhar, kanif.kumbhar@example.com"
+                oninput="parseManualInput()"
+              ></textarea>
+              <span class="field-hint">Format: <code>Full Name, email@domain.com</code></span>
+            </div>
+          </div>
+
+          <!-- Parsed Recipients Preview -->
+          <div id="recipients-preview" class="preview-section" style="display:none;">
+            <div class="preview-header">
+              <div class="preview-title">
+                <span>Parsed Recipients</span>
+                <span class="count-badge" id="recipients-count-badge">0</span>
+              </div>
+              <button type="button" class="link-btn text-danger" onclick="clearRecipients()">Clear</button>
+            </div>
+            <div class="preview-table-container">
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Error Alert Banner -->
+          <div id="form-error-banner" class="alert-banner alert-error" style="display:none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span id="form-error-msg">Please correct the errors before submitting.</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="button" class="btn-primary" id="submit-job-btn" onclick="submitGenerationJob()">
+            <span id="btn-text">Generate Certificates</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- RIGHT: Status & Results Panel -->
+      <section class="card monitor-card">
+        <div class="card-header">
+          <div class="card-header-icon highlight">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">Live Batch Monitor</h2>
+            <p class="card-desc">Track progress and retrieve generated certificate PDFs</p>
+          </div>
+        </div>
+
+        <!-- Empty State (No Active Job) -->
+        <div id="monitor-empty" class="empty-state">
+          <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <h3>No Active Generation Job</h3>
+          <p>Submit a batch from the left panel to watch generation progress in real-time.</p>
+        </div>
+
+        <!-- Active Job View -->
+        <div id="monitor-active" class="active-monitor" style="display:none;">
+          <!-- Job Details Bar -->
+          <div class="job-meta-bar">
+            <div>
+              <span class="meta-label">Job ID</span>
+              <div class="copy-id-wrapper">
+                <code id="active-job-id">-</code>
+                <button type="button" class="icon-btn" title="Copy Job ID" onclick="copyActiveJobId()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <span class="meta-label">Status</span>
+              <div id="active-job-status-badge" class="badge badge-pending">Pending</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <div class="progress-labels">
+              <span id="progress-percentage">0% Completed</span>
+              <span id="progress-counts">0 / 0</span>
+            </div>
+            <div class="progress-track">
+              <div id="progress-bar-fill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Stats Counters -->
+          <div class="stats-row">
+            <div class="stat-box">
+              <span class="stat-number" id="stat-total">0</span>
+              <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-box success">
+              <span class="stat-number" id="stat-success">0</span>
+              <span class="stat-label">Generated</span>
+            </div>
+            <div class="stat-box failed">
+              <span class="stat-number" id="stat-failed">0</span>
+              <span class="stat-label">Failed</span>
+            </div>
+          </div>
+
+          <!-- Certificates Table -->
+          <div class="certs-section">
+            <div class="certs-header">
+              <h3>Generated Certificates</h3>
+              <button type="button" class="link-btn" onclick="refreshCertificates()">Refresh</button>
+            </div>
+            <div class="certs-table-container">
+              <table class="certs-table">
+                <thead>
+                  <tr>
+                    <th>Recipient</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="certs-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Jobs Section -->
+        <div class="recent-jobs-section">
+          <div class="recent-header">
+            <h3>Recent Generation Jobs</h3>
+            <button type="button" class="link-btn" onclick="fetchRecentJobs()">Reload</button>
+          </div>
+          <div id="recent-jobs-list" class="recent-jobs-list">
+            <p class="subtle-loading">Loading recent jobs...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Job created successfully!</div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
